@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plataforma de planeamento de viagens com transportes, alojamento e itinerários personalizados.">
+  <title>TripFlow — Planeamento de viagens</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --surface:#ffffff;
+      --surface-2:#f0f4f8;
+      --text:#172033;
+      --muted:#667085;
+      --primary:#3157d5;
+      --primary-dark:#2443ad;
+      --accent:#18a77a;
+      --border:#e2e7ef;
+      --warning:#f59e0b;
+      --shadow:0 12px 35px rgba(20,35,70,.08);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .app{min-height:100vh}
+    header{
+      position:sticky;top:0;z-index:20;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav{
+      max-width:1200px;margin:auto;padding:16px 24px;
+      display:flex;align-items:center;justify-content:space-between;gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:20px}
+    .brand-mark{
+      width:38px;height:38px;border-radius:12px;
+      display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--primary),#6f86ed);
+      box-shadow:0 8px 18px rgba(49,87,213,.25);
+    }
+    .nav-links{display:flex;gap:6px}
+    .nav-links button{
+      border:0;background:transparent;padding:9px 12px;border-radius:10px;color:var(--muted)
+    }
+    .nav-links button:hover{background:var(--surface-2);color:var(--text)}
+    .avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#e9edff;color:var(--primary);font-weight:800}
+
+    main{max-width:1200px;margin:auto;padding:42px 24px 70px}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center;margin-bottom:38px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:7px;background:#e9edff;color:var(--primary);
+      padding:7px 11px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:14px
+    }
+    h1{font-size:clamp(38px,5vw,62px);line-height:1.02;letter-spacing:-2.5px;margin:0 0 18px}
+    .hero p{font-size:18px;line-height:1.65;color:var(--muted);max-width:670px;margin:0 0 25px}
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{
+      border:0;border-radius:12px;padding:13px 18px;font-weight:750;
+      transition:.2s transform,.2s box-shadow,.2s background;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 8px 20px rgba(49,87,213,.2)}
+    .btn-primary:hover{background:var(--primary-dark)}
+    .btn-secondary{background:#fff;color:var(--text);border:1px solid var(--border)}
+
+    .hero-card{
+      background:linear-gradient(145deg,#1d2b5d,#3e5fd5);
+      color:#fff;border-radius:28px;padding:25px;box-shadow:var(--shadow);min-height:330px;position:relative;overflow:hidden
+    }
+    .hero-card:after{
+      content:"";position:absolute;width:230px;height:230px;border-radius:50%;
+      background:rgba(255,255,255,.08);right:-60px;top:-65px
+    }
+    .route-preview{position:relative;z-index:1}
+    .route-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+    .route-title{font-weight:800;font-size:19px}
+    .route-date{opacity:.75;font-size:13px}
+    .route-line{display:flex;flex-direction:column;gap:17px}
+    .route-item{display:grid;grid-template-columns:24px 1fr auto;gap:11px;align-items:center}
+    .dot{width:14px;height:14px;border:3px solid #fff;border-radius:50%;margin-left:3px}
+    .route-connector{width:2px;height:19px;background:rgba(255,255,255,.35);margin-left:9px}
+    .route-item strong{display:block}.route-item span{font-size:12px;opacity:.7}
+    .route-price{font-weight:800}
+
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:25px;margin-bottom:25px}
+    .panel-header{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:22px}
+    .panel-header h2{margin:0;font-size:22px}
+    .panel-header p{margin:5px 0 0;color:var(--muted);font-size:14px}
+    .step-badge{font-size:12px;font-weight:800;color:var(--primary);background:#edf0ff;border-radius:999px;padding:7px 10px;white-space:nowrap}
+
+    .search-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+    .field label{display:block;font-size:12px;font-weight:750;margin-bottom:7px;color:#475467}
+    .field input,.field select{
+      width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:11px;background:#fff;color:var(--text);outline:none
+    }
+    .field input:focus,.field select:focus{border-color:#91a3ed;box-shadow:0 0 0 3px #e9edff}
+    .search-action{display:flex;justify-content:flex-end;margin-top:16px}
+
+    .content-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}
+    .options{display:grid;gap:12px}
+    .option{
+      border:1px solid var(--border);border-radius:15px;padding:15px;
+      display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff
+    }
+    .option:hover{border-color:#bdc8ef}
+    .option-main{display:flex;gap:13px;align-items:center}
+    .option-icon{width:44px;height:44px;border-radius:12px;background:#f0f4ff;display:grid;place-items:center;font-size:20px}
+    .option h3{font-size:15px;margin:0 0 4px}
+    .option p{font-size:12px;color:var(--muted);margin:0}
+    .option-right{text-align:right}.price{font-weight:850}.small{font-size:11px;color:var(--muted)}
+    .select-btn{border:0;background:#edf0ff;color:var(--primary);font-weight:750;border-radius:9px;padding:8px 10px;margin-top:7px}
+    .select-btn.selected{background:var(--accent);color:#fff}
+
+    .itinerary{display:grid;gap:14px}
+    .day{
+      border:1px solid var(--border);border-radius:16px;padding:17px;background:#fff
+    }
+    .day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+    .day-head h3{margin:0;font-size:16px}.day-head span{font-size:12px;color:var(--muted)}
+    .timeline{display:grid;gap:11px}
+    .activity{display:grid;grid-template-columns:65px 1fr auto;gap:12px;align-items:center}
+    .activity-time{font-size:12px;color:var(--muted);font-weight:700}
+    .activity-body{border-left:3px solid #dce3ff;padding-left:12px}
+    .activity-body strong{display:block;font-size:14px}.activity-body span{font-size:12px;color:var(--muted)}
+    .tag{font-size:10px;background:#eef8f4;color:#168160;padding:5px 7px;border-radius:999px;font-weight:800}
+
+    .summary{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+    .summary-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{background:var(--surface-2);border-radius:14px;padding:14px}
+    .metric span{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}.metric strong{font-size:20px}
+    .total{text-align:right}.total span{font-size:13px;color:var(--muted)}.total strong{display:block;font-size:32px;margin:4px 0 10px}
+
+    .toast{
+      position:fixed;right:22px;bottom:22px;z-index:50;background:#172033;color:#fff;
+      padding:13px 16px;border-radius:12px;box-shadow:var(--shadow);transform:translateY(120px);opacity:0;transition:.3s
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    footer{max-width:1200px;margin:auto;padding:0 24px 30px;color:var(--muted);font-size:12px;text-align:center}
+
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr}.search-grid{grid-template-columns:repeat(2,1fr)}
+      .content-grid{grid-template-columns:1fr}.summary{grid-template-columns:1fr}.total{text-align:left}
+    }
+    @media(max-width:600px){
+      .nav-links{display:none}.nav{padding:12px 16px}main{padding:30px 16px 55px}
+      h1{letter-spacing:-1.7px}.search-grid{grid-template-columns:1fr}.panel{padding:18px}
+      .summary-list{grid-template-columns:1fr}.activity{grid-template-columns:50px 1fr}.tag{display:none}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <nav class="nav">
+      <div class="brand"><div class="brand-mark">✦</div> TripFlow</div>
+      <div class="nav-links">
+        <button onclick="scrollToId('planeador')">Planeador</button>
+        <button onclick="scrollToId('itinerario')">Itinerário</button>
+        <button onclick="scrollToId('resumo')">Resumo</button>
+      </div>
+      <div class="avatar">JS</div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">✦ Planeamento inteligente de viagens</div>
+        <h1>Uma viagem.<br>Um só lugar.</h1>
+        <p>Centraliza transportes, alojamento e atividades e transforma as tuas preferências num itinerário personalizado, claro e fácil de ajustar.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="scrollToId('planeador')">Começar a planear</button>
+          <button class="btn btn-secondary" onclick="generateTrip()">Gerar itinerário</button>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="route-preview">
+          <div class="route-head">
+            <div>
+              <div class="route-title">Porto → Barcelona</div>
+              <div class="route-date">12 — 16 outubro · 4 noites</div>
+            </div>
+            <span>✈</span>
+          </div>
+          <div class="route-line">
+            <div class="route-item">
+              <div class="dot"></div>
+              <div><strong>Porto</strong><span>08:20 · Aeroporto OPO</span></div>
+              <div class="route-price">€68</div>
+            </div>
+            <div class="route-connector"></div>
+            <div class="route-item">
+              <div class="dot"></div>
+              <div><strong>Barcelona</strong><span>10:55 · Aeroporto BCN</span></div>
+              <div class="route-price">€420</div>
+            </div>
+            <div class="route-connector"></div>
+            <div class="route-item">
+              <div class="dot"></div>
+              <div><strong>Hotel Central</strong><span>4 noites · quarto duplo</span></div>
+              <div class="route-price">€352</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="planeador">
+      <div class="panel-header">
+        <div>
+          <h2>1. Define a viagem</h2>
+          <p>Indica o essencial. O resto pode ser ajustado depois.</p>
+        </div>
+        <span class="step-badge">PASSO 1 DE 3</span>
+      </div>
+      <div class="search-grid">
+        <div class="field">
+          <label for="origin">Origem</label>
+          <input id="origin" value="Porto" placeholder="Ex.: Porto">
+        </div>
+        <div class="field">
+          <label for="destination">Destino</label>
+          <input id="destination" value="Barcelona" placeholder="Ex.: Barcelona">
+        </div>
+        <div class="field">
+          <label for="start">Ida</label>
+          <input id="start" type="date" value="2026-10-12">
+        </div>
+        <div class="field">
+          <label for="end">Regresso</label>
+          <input id="end" type="date" value="2026-10-16">
+        </div>
+      </div>
+      <div class="search-grid" style="margin-top:13px">
+        <div class="field">
+          <label for="travellers">Viajantes</label>
+          <select id="travellers"><option>1 viajante</option><option selected>2 viajantes</option><option>3 viajantes</option><option>4 viajantes</option><option>5+ viajantes</option></select>
+        </div>
+        <div class="field">
+          <label for="budget">Orçamento</label>
+          <select id="budget"><option>€500 — €800</option><option selected>€800 — €1.200</option><option>€1.200 — €1.800</option><option>€1.800+</option></select>
+        </div>
+        <div class="field">
+          <label for="style">Estilo</label>
+          <select id="style"><option selected>Equilibrado</option><option>Económico</option><option>Conforto</option><option>Premium</option></select>
+        </div>
+        <div class="field">
+          <label for="pace">Ritmo</label>
+          <select id="pace"><option selected>Moderado</option><option>Relaxado</option><option>Intenso</option></select>
+        </div>
+      </div>
+      <div class="search-action">
+        <button class="btn btn-primary" onclick="generateTrip()">Encontrar opções →</button>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div><h2>2. Transportes</h2><p>Escolhe a opção que melhor encaixa na viagem.</p></div>
+        </div>
+        <div class="options" id="transport-options">
+          <div class="option">
+            <div class="option-main"><div class="option-icon">✈️</div><div><h3>Voo direto</h3><p>OPO → BCN · 2h 35min · bagagem incluída</p></div></div>
+            <div class="option-right"><div class="price">€136</div><div class="small">/ 2 pessoas</div><button class="select-btn selected" onclick="selectOption(this,'transport')">Selecionado</button></div>
+          </div>
+          <div class="option">
+            <div class="option-main"><div class="option-icon">🚆</div><div><h3>Comboio + avião</h3><p>Mais flexibilidade · 5h 20min</p></div></div>
+            <div class="option-right"><div class="price">€184</div><div class="small">/ 2 pessoas</div><button class="select-btn" onclick="selectOption(this,'transport')">Escolher</button></div>
+          </div>
+          <div class="option">
+            <div class="option-main"><div class="option-icon">🚌</div><div><h3>Autocarro</h3><p>Mais económico · 16h 10min</p></div></div>
+            <div class="option-right"><div class="price">€82</div><div class="small">/ 2 pessoas</div><button class="select-btn" onclick="selectOption(this,'transport')">Escolher</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div><h2>3. Alojamento</h2><p>Opções compatíveis com o teu perfil.</p></div>
+        </div>
+        <div class="options" id="hotel-options">
+          <div class="option">
+            <div class="option-main"><div class="option-icon">🏨</div><div><h3>Hotel Central</h3><p>4 noites · centro · pequeno-almoço</p></div></div>
+            <div class="option-right"><div class="price">€352</div><div class="small">total</div><button class="select-btn selected" onclick="selectOption(this,'hotel')">Selecionado</button></div>
+          </div>
+          <div class="option">
+            <div class="option-main"><div class="option-icon">🏠</div><div><h3>Casa Gòtic</h3><p>4 noites · apartamento · cozinha</p></div></div>
+            <div class="option-right"><div class="price">€310</div><div class="small">total</div><button class="select-btn" onclick="selectOption(this,'hotel')">Escolher</button></div>
+          </div>
+          <div class="option">
+            <div class="option-main"><div class="option-icon">🌿</div><div><h3>Rambla Stay</h3><p>4 noites · boutique · rooftop</p></div></div>
+            <div class="option-right"><div class="price">€448</div><div class="small">total</div><button class="select-btn" onclick="selectOption(this,'hotel')">Escolher</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="itinerario">
+      <div class="panel-header">
+        <div><h2>Itinerário personalizado</h2><p id="itinerary-subtitle">Gerado a partir das tuas escolhas e do ritmo moderado.</p></div>
+        <button class="btn btn-secondary" onclick="generateTrip()">↻ Regenerar</button>
+      </div>
+      <div class="itinerary" id="itinerary-list"></div>
+    </section>
+
+    <section class="panel" id="resumo">
+      <div class="panel-header">
+        <div><h2>Resumo da viagem</h2><p>Uma visão simples de tudo o que foi planeado.</p></div>
+        <span class="step-badge">PRONTO A AJUSTAR</span>
+      </div>
+      <div class="summary">
+        <div class="summary-list">
+          <div class="metric"><span>Transportes</span><strong id="transport-total">€136</strong></div>
+          <div class="metric"><span>Alojamento</span><strong id="hotel-total">€352</strong></div>
+          <div class="metric"><span>Duração</span><strong id="duration-total">4 noites</strong></div>
+        </div>
+        <div class="total"><span>Estimativa total</span><strong id="grand-total">€488</strong><button class="btn btn-primary" onclick="saveTrip()">Guardar viagem</button></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>TripFlow · Protótipo de interface · Dados demonstrativos</footer>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  let selectedTransport = 136;
+  let selectedHotel = 352;
+
+  const activities = [
+    ["09:30","Passeio pelo Bairro Gótico","Explorar as ruas históricas e pequenas praças","Explorar"],
+    ["12:30","Almoço no centro","Restaurante local próximo do itinerário","Gastronomia"],
+    ["15:00","Sagrada Família","Visita e tempo livre na zona envolvente","Cultura"],
+    ["18:30","Passeio pelo Passeig de Gràcia","Arquitetura, lojas e pausa para café","Passeio"],
+    ["20:30","Jantar","Sugestão adaptada ao teu ritmo","Gastronomia"]
+  ];
+
+  function renderItinerary(){
+    const pace = document.getElementById('pace').value;
+    const subtitle = document.getElementById('itinerary-subtitle');
+    subtitle.textContent = `Gerado a partir das tuas escolhas e do ritmo ${pace.toLowerCase()}.`;
+    const container = document.getElementById('itinerary-list');
+    const days = [
+      ["Dia 1","Chegada e primeiro contacto"],
+      ["Dia 2","Centro histórico e cultura"],
+      ["Dia 3","Arquitetura e gastronomia"],
+      ["Dia 4","Tempo livre e descoberta"]
+    ];
+    container.innerHTML = days.map((day, index) => {
+      let dayActivities = activities;
+      if(pace === "Relaxado") dayActivities = activities.filter((_,i)=>[0,1,3].includes(i));
+      if(pace === "Intenso") dayActivities = [...activities,["22:00","Noite livre","Sugestão de zona para continuar a explorar","Livre"]];
+      if(index === 0) dayActivities = [
+        ["10:55","Chegada a Barcelona","Transfer para o alojamento","Transporte"],
+        ["13:00","Check-in","Deixar bagagem e instalar","Alojamento"],
+        ["16:00","Passeio de adaptação","Primeiro contacto com o bairro","Passeio"],
+        ["20:00","Jantar","Sugestão próxima do hotel","Gastronomia"]
+      ];
+      return `<div class="day">
+        <div class="day-head"><h3>${day[0]} · ${day[1]}</h3><span>${dayActivities.length} atividades</span></div>
+        <div class="timeline">
+          ${dayActivities.map(a=>`<div class="activity"><div class="activity-time">${a[0]}</div><div class="activity-body"><strong>${a[1]}</strong><span>${a[2]}</span></div><span class="tag">${a[3]}</span></div>`).join("")}
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function selectOption(button, type){
+    const parent = button.closest('.options');
+    parent.querySelectorAll('.select-btn').forEach(b=>{
+      b.classList.remove('selected');
+      b.textContent='Escolher';
+    });
+    button.classList.add('selected');
+    button.textContent='Selecionado';
+
+    const option = button.closest('.option');
+    const priceText = option.querySelector('.price').textContent.replace('€','').trim();
+    if(type === 'transport') selectedTransport = Number(priceText);
+    if(type === 'hotel') selectedHotel = Number(priceText);
+    updateTotals();
+    showToast(type === 'transport' ? 'Transporte atualizado.' : 'Alojamento atualizado.');
+  }
+
+  function updateTotals(){
+    document.getElementById('transport-total').textContent = `€${selectedTransport}`;
+    document.getElementById('hotel-total').textContent = `€${selectedHotel}`;
+    document.getElementById('grand-total').textContent = `€${selectedTransport + selectedHotel}`;
+  }
+
+  function generateTrip(){
+    const origin = document.getElementById('origin').value || 'Origem';
+    const destination = document.getElementById('destination').value || 'Destino';
+    const start = document.getElementById('start').value;
+    const end = document.getElementById('end').value;
+    if(start && end && new Date(end) < new Date(start)){
+      showToast('A data de regresso deve ser posterior à ida.');
+      return;
+    }
+    const nights = start && end ? Math.max(1, Math.round((new Date(end)-new Date(start))/86400000)) : 4;
+    document.getElementById('duration-total').textContent = `${nights} noites`;
+    document.querySelector('.route-title').textContent = `${origin} → ${destination}`;
+    renderItinerary();
+    updateTotals();
+    showToast('Itinerário personalizado gerado.');
+    scrollToId('itinerario');
+  }
+
+  function saveTrip(){
+    const trip = {
+      origem: document.getElementById('origin').value,
+      destino: document.getElementById('destination').value,
+      ida: document.getElementById('start').value,
+      regresso: document.getElementById('end').value,
+      transportes: selectedTransport,
+      alojamento: selectedHotel
+    };
+    localStorage.setItem('tripflow-trip', JSON.stringify(trip));
+    showToast('Viagem guardada neste dispositivo.');
+  }
+
+  function scrollToId(id){
+    document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  function showToast(message){
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(()=>toast.classList.remove('show'),2600);
+  }
+
+  renderItinerary();
+  updateTotals();
+</script>
+</body>
+</html>
